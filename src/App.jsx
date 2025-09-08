@@ -124,7 +124,7 @@ const App = () => {
   // Function to call API when Shadow doesn't understand
   const handleApiRequest = async (query) => {
     try {
-      const res = await fetch("https://localhost:5000/api/chat", {
+      const res = await fetch("https://192.168.100.124:5000/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: query }),
