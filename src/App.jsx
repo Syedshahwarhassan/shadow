@@ -124,7 +124,7 @@ const App = () => {
   // Function to call API when Shadow doesn't understand
   const handleApiRequest = async (query) => {
     try {
-      const res = await fetch("http://192.168.100.124:5000/api/chat", {
+      const res = await fetch("http://localhost:5000/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: query }),
@@ -145,7 +145,7 @@ const App = () => {
   };
 
   return (
-    <div className="flex items-center flex-col gap-8 relative bg-black min-h-screen justify-center p-4 text-white">
+    <div className="flex items-center flex-col gap-8 relative bg-black max-h-screen justify-center p-4 text-white">
       <Eyes isListening={isListening} />
       <div className="relative">
         <Mouth open={mouthOpen} />
