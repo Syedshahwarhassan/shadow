@@ -145,7 +145,7 @@ const App = () => {
   };
 
   return (
-    <div className="flex items-center flex-col gap-8 relative bg-black max-h-screen justify-center p-4 text-white">
+    <div className="flex items-center flex-col gap-8 relative bg-black min-h-screen justify-center p-4 text-white">
       <Eyes isListening={isListening} />
       <div className="relative">
         <Mouth open={mouthOpen} />
