@@ -10,6 +10,7 @@ const App = () => {
   const [transcript, setTranscript] = useState(""); // spoken words
   const [dateTime, setDateTime] = useState(new Date());
   const [blush, setBlush] = useState({ left: false, right: false }); // cheeks state
+  const [isThinking, setIsThinking] = useState(false); // 👈 New state for thinking hand
   const recognitionRef = useRef(null);
 
   // Owner name
@@ -45,11 +46,11 @@ const App = () => {
       console.log("Heard:", text);
       setTranscript(text);
 
-     if (text.toLowerCase().includes("time")) {
+      if (text.toLowerCase().includes("time")) {
         speak(`The time is ${dateTime.toLocaleTimeString()}`);
       } else if (text.toLowerCase().includes("date")) {
         speak(`Today's date is ${dateTime.toLocaleDateString()}`);
-      } else  if (text.toLowerCase().includes("owner")) {
+      } else if (text.toLowerCase().includes("owner")) {
         speak(`My owner is ${ownerName}`);
       } else {
         // If not recognized, send to backend
@@ -62,47 +63,43 @@ const App = () => {
 
   // Mic button → stop speaking + listen again
   const startListening = () => {
-    // Stop any ongoing speech
     if (window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
       setMouthOpen(false);
     }
 
-    // Restart recognition
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setTimeout(() => {
         recognitionRef.current.start();
-      }, 200); // delay prevents crash
+      }, 200);
     }
   };
 
   const speak = (text) => {
-    // Stop listening while speaking
     if (recognitionRef.current) recognitionRef.current.stop();
 
     const utterance = new SpeechSynthesisUtterance(text);
 
-    // Use female cute voice if available
     const voices = window.speechSynthesis.getVoices();
-    const femaleVoice = voices.find((v) =>
-      v.name.toLowerCase().includes("female") ||
-      v.name.toLowerCase().includes("woman") ||
-      v.name.toLowerCase().includes("samantha")
+    const femaleVoice = voices.find(
+      (v) =>
+        v.name.toLowerCase().includes("female") ||
+        v.name.toLowerCase().includes("woman") ||
+        v.name.toLowerCase().includes("samantha")
     );
     if (femaleVoice) utterance.voice = femaleVoice;
 
     utterance.onstart = () => setMouthOpen(true);
     utterance.onend = () => {
       setMouthOpen(false);
-      // After speaking, auto start listening again
       if (recognitionRef.current) recognitionRef.current.start();
     };
 
     window.speechSynthesis.speak(utterance);
   };
 
-  // Function to trigger blush + cute reaction
+  // Blushing cheeks
   const handleBlush = (side) => {
     setBlush((prev) => ({ ...prev, [side]: true }));
 
@@ -121,9 +118,10 @@ const App = () => {
     }, 1500);
   };
 
-  // Function to call API when Shadow doesn't understand
+  // Call API when Shadow doesn't understand
   const handleApiRequest = async (query) => {
     try {
+      setIsThinking(true); // 👈 Start thinking animation
       const res = await fetch("https://192.168.100.124:5000/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -141,6 +139,8 @@ const App = () => {
     } catch (error) {
       console.error("API Error:", error);
       speak("There was an error reaching my brain server.");
+    } finally {
+      setIsThinking(false); // 👈 Stop thinking animation
     }
   };
 
@@ -171,13 +171,17 @@ const App = () => {
         </div>
       </div>
 
-      {/* Show transcript */}
+      {/* Transcript */}
       <div className="mt-6 text-lg font-mono text-green-400 bg-gray-900 px-4 py-2 rounded-lg shadow-lg max-w-xl text-center">
         {transcript || "Click the mic and speak..."}
       </div>
 
+      {/* Thinking Hand */}
+      {isThinking && (
+        <div className="text-4xl animate-bounce mt-4">🤔✋</div>
+      )}
+
       <div className="absolute bottom-4 flex gap-6">
-        {/* Mic button to start listening */}
         <button onClick={startListening}>
           <Mic
             className={`w-8 h-8 ${
