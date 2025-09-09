@@ -1,9 +1,7 @@
-// app/Eyes.tsx
 import { useEffect, useRef } from "react";
 import { motion, useAnimation } from "framer-motion";
 
-
-const Eyes = ({ isListening = false }) => {
+const Eyes = ({ isListening = false, isThinking = false }) => {
   const blinkControls = useAnimation();
   const glowControls = useAnimation();
   const pulseControls = useAnimation();
@@ -35,38 +33,57 @@ const Eyes = ({ isListening = false }) => {
     };
   }, [isListening, blinkControls]);
 
+  // 🎧 Listening animation
   useEffect(() => {
-    if (isListening) {
-      // Glow effect
+    if (isListening && !isThinking) {
       glowControls.start({
         opacity: [0.3, 1, 0.3],
         transition: { repeat: Infinity, duration: 2, ease: "easeInOut" },
       });
 
-      // Pulse effect
       pulseControls.start({
         scale: [1, 1.1, 1],
         transition: { repeat: Infinity, duration: 1.6, ease: "easeInOut" },
       });
 
-      // Pupil dilation
       pupilControls.start({
         scale: 1,
         opacity: 1,
         transition: { duration: 0.5, ease: "easeOut" },
       });
-    } else {
-      // Reset animations
-      glowControls.stop();
-      pulseControls.stop();
-      glowControls.start({ opacity: 0, transition: { duration: 0.5 } });
-      pulseControls.start({ scale: 1, transition: { duration: 0.5 } });
-      pupilControls.start({ scale: 0, opacity: 0, transition: { duration: 0.5 } });
     }
-  }, [isListening, glowControls, pulseControls, pupilControls]);
+  }, [isListening, isThinking, glowControls, pulseControls, pupilControls]);
 
-  const eyeColor = isListening ? "#04d9d9" : "#04d9ff";
-  const shadowColor = isListening ? "#04d9d9" : "#04d9ff";
+  // 🤔 Thinking animation
+  useEffect(() => {
+    if (isThinking) {
+      glowControls.start({
+        opacity: [0.4, 1, 0.4],
+        transition: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+      });
+
+      pulseControls.start({
+        scale: [1, 1.05, 1],
+        transition: { repeat: Infinity, duration: 1.2, ease: "easeInOut" },
+      });
+
+      pupilControls.start({
+        x: [-10, 10, -10], // 👀 dart left-right
+        transition: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+      });
+    } else {
+      pupilControls.start({ x: 0, transition: { duration: 0.5 } });
+    }
+  }, [isThinking, glowControls, pulseControls, pupilControls]);
+
+  // 🎨 Colors depending on mode
+  const eyeColor = isThinking
+    ? "#04d9d9" // yellow for thinking
+    : isListening
+    ? "#04d9d9" // cyan for listening
+    : "#04d9ff"; // blue default
+
+  const shadowColor = eyeColor;
 
   return (
     <div className="flex items-center justify-center gap-10 mb-8">
@@ -93,7 +110,7 @@ const Eyes = ({ isListening = false }) => {
             className="absolute top-1/2 left-1/2 w-8 h-8 rounded-full bg-black"
             style={{ transform: "translate(-50%, -50%)" }}
           />
-          {/* Reflection/Highlight */}
+          {/* Reflection */}
           <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-white opacity-30" />
         </motion.div>
       </div>
@@ -121,7 +138,7 @@ const Eyes = ({ isListening = false }) => {
             className="absolute top-1/2 left-1/2 w-8 h-8 rounded-full bg-black"
             style={{ transform: "translate(-50%, -50%)" }}
           />
-          {/* Reflection/Highlight */}
+          {/* Reflection */}
           <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-white opacity-30" />
         </motion.div>
       </div>

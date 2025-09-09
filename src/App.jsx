@@ -77,27 +77,32 @@ const App = () => {
   };
 
   const speak = (text) => {
-    if (recognitionRef.current) recognitionRef.current.stop();
+  if (recognitionRef.current) recognitionRef.current.stop();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+  const utterance = new SpeechSynthesisUtterance(text);
 
-    const voices = window.speechSynthesis.getVoices();
-    const femaleVoice = voices.find(
-      (v) =>
-        v.name.toLowerCase().includes("female") ||
-        v.name.toLowerCase().includes("woman") ||
-        v.name.toLowerCase().includes("samantha")
-    );
-    if (femaleVoice) utterance.voice = femaleVoice;
+  const voices = window.speechSynthesis.getVoices();
+  const femaleVoice = voices.find(
+    (v) =>
+      v.name.toLowerCase().includes("female") ||
+      v.name.toLowerCase().includes("woman") ||
+      v.name.toLowerCase().includes("samantha")
+  );
+  if (femaleVoice) utterance.voice = femaleVoice;
 
-    utterance.onstart = () => setMouthOpen(true);
-    utterance.onend = () => {
-      setMouthOpen(false);
-      if (recognitionRef.current) recognitionRef.current.start();
-    };
+  // 🔊 Control pitch & rate
+  utterance.pitch = 1.5; // higher pitch (0.5 = lower, 2 = higher)
+  utterance.rate = 0.8;  // slower speed (1 = normal, 2 = fast)
 
-    window.speechSynthesis.speak(utterance);
+  utterance.onstart = () => setMouthOpen(true);
+  utterance.onend = () => {
+    setMouthOpen(false);
+    if (recognitionRef.current) recognitionRef.current.start();
   };
+
+  window.speechSynthesis.speak(utterance);
+};
+
 
   // Blushing cheeks
   const handleBlush = (side) => {
@@ -146,7 +151,7 @@ const App = () => {
 
   return (
     <div className="flex items-center flex-col gap-8 relative bg-black min-h-screen justify-center p-4 text-white">
-      <Eyes isListening={isListening} />
+      <Eyes isListening={isListening} isThinking={isThinking} />
       <div className="relative">
         <Mouth open={mouthOpen} />
 
@@ -176,10 +181,7 @@ const App = () => {
         {transcript || "Click the mic and speak..."}
       </div>
 
-      {/* Thinking Hand */}
-      {isThinking && (
-        <div className="text-4xl animate-bounce mt-4">🤔✋</div>
-      )}
+      
 
       <div className="absolute bottom-4 flex gap-6">
         <button onClick={startListening}>
